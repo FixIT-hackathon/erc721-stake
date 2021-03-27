@@ -100,6 +100,11 @@ contract Staking is Ownable {
         return reward;
     }
 
+    function listERC721(address erc721) onlyOwner public {
+        require(!whitelist[erc721], "Staking: such ERC721 already existed");
+        whitelist[erc721] = true;
+    }
+
     function calculateReward(uint256 amount, uint256 timeDiff) view public returns (uint256){
         uint256 timeDiffDays = timeDiff.div(1 days);
         timeDiffDays = timeDiffDays.sub(timeDiffDays.mod(_maxStakeDays));
