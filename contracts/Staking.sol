@@ -3,9 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract Staking {
+contract Staking is Ownable {
     IERC20 token;
     using SafeMath for uint256;
 
@@ -41,6 +42,14 @@ contract Staking {
         _maxStakeDays = settings[4].mul(1 days);
     }
 
+    function refuel(uint256 amount) onlyOwner {
+        require(token.balanceOf(msg.sender) >= amount, "Staking: sender balance is too low");
+        require(token.allowance(msg.sender, address(this)) >= amount, "Staking: sender allowance is too low");
+
+        token.transferFrom(msg.sender, address(this), amount);
+        _fuel = _fuel.add(amount);
+    }
+
 
     function stake(uint256 amount, address erc721, uint256 tokenID) external {
         require(amount >= _minStake, "Staking: amount too small");
@@ -60,9 +69,23 @@ contract Staking {
 
         require(reward > 0, "Staking: zero reward");
         require(reward > _fuel, "Staking: too low fuel amount");
+        _fuel.sub(reward);
+
+        token.transfer(msg.sender, reward);
 
         delete tokenIdStakeByAsset[erc721][tokenID];
-        token.transfer(msg.sender, reward);
+    }
+
+    function stakeAmountFor(address erc721, uint256 tokenID) view public returns (uint256){
+        require(tokenIdStakeByAsset[erc721][tokenID].length != 0, "Staking: staking pool is empty");
+
+        Stake[] memory stakes = tokenIdStakeByAsset[erc721][tokenID];
+        uint256 amount = 0;
+        for (uint i = 0; i < stakes.length; i++) {
+            amount.add(stakes[i].amount);
+        }
+
+        return amount;
     }
 
     function calculateRewardFor(address erc721, uint256 tokenID) view public returns (uint256){
