@@ -53,7 +53,8 @@ contract Staking is Ownable {
 
     function stake(uint256 amount, address erc721, uint256 tokenID) external {
         require(amount >= minStake, "Staking: amount too small");
-        require(_stakingAmount.add(amount) > _maxStakingAmount, "Staking: stake pool is full");
+        require(amount <= maxStake, "Staking: amount too big");
+        require(_stakingAmount.add(amount) <= _maxStakingAmount, "Staking: stake pool is full");
         require(erc721 != address(0), "Staking: erc721 contract address is null");
         require(whitelist[erc721], "Staking: erc721 contract is not whitelisted");
         require(token.balanceOf(msg.sender) >= amount, "Staking: sender balance is too low");
