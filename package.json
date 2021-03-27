@@ -1,0 +1,23 @@
+{
+  "name": "erc721-stake",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FixIT-hackathon/erc721-stake.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FixIT-hackathon/erc721-stake/issues"
+  },
+  "homepage": "https://github.com/FixIT-hackathon/erc721-stake#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.0.0",
+    "truffle-abi": "^1.0.3"
+  }
+}
