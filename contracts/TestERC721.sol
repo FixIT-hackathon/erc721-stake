@@ -6,11 +6,11 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 contract TestERC721 is ERC721Enumerable  {
     mapping(uint256 => string) _tokenURIs;
 
-    constructor() ERC721("Test", "TT") {
-        _mint(0x57f9A3a483d7D14c755175153b195Aa1e68Fd928, 0);
-        _mint(0x57f9A3a483d7D14c755175153b195Aa1e68Fd928, 1);
-        _tokenURIs[0] = "https://gateway.ipfs.io/ipfs/QmTkfdr1oF5a8FPWtsFm8PqtMz1n72uHMwm6WR9HroaeT1";
-        _tokenURIs[1] = "https://gateway.ipfs.io/ipfs/Qmf8o25WPGyLDaroTpJaXF9fErKxgSNtjaSuTEGUMJUfcX";
+    constructor(address[] memory receivers, string[] memory uris) ERC721("Test", "TT") {
+        for (uint i = 0; i < receivers.length; i++) {
+            _mint(receivers[i], i);
+            _tokenURIs[i] = uris[i];
+        }
     }
 
     function _setTokenURI(uint256 tokenId, string memory tokenURI) internal virtual

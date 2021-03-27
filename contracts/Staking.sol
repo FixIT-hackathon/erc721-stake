@@ -15,24 +15,36 @@ contract Staking {
     uint256 _apr;
     uint256 _minStake;
     uint256 _maxStake;
-
     uint256 _maxStakeDays;
+    uint256 _fuel;
+
+
+    uint256 _stakingAmount = 0;
+    uint256 _maxStakingAmount;
+
 
     struct Stake {
         uint256 amount;
         uint256 startAt;
     }
 
-    constructor(uint256 apr, uint256 minStake, uint256 maxStake, uint256 maxStakeDaysCount) {
-        _apr = apr;
-        _minStake = minStake;
-        _maxStake = maxStake;
-        _maxStakeDays = maxStakeDaysCount.mul(1 days);
+    constructor(address erc20, uint256[] memory settings) {
+        require(settings[0] > 0, "Staking: bad apr");
+        require(settings[4] > 0, "Staking: bad max stake days");
+        require(settings[1] < settings[2] && settings[2] > settings[3], "Staking: bad maximums");
+
+        token = IERC20(erc20);
+        _apr = settings[0];
+        _minStake = settings[1];
+        _maxStake = settings[2];
+        _maxStakingAmount = settings[3];
+        _maxStakeDays = settings[4].mul(1 days);
     }
 
 
     function stake(uint256 amount, address erc721, uint256 tokenID) external {
-        require(amount >= _minStake,"Staking: amount too small");
+        require(amount >= _minStake, "Staking: amount too small");
+        require(_stakingAmount.add(amount) > _maxStakingAmount, "Staking: stake pool is full");
         require(erc721 != address(0), "Staking: erc721 contract address is null");
         require(whitelist[erc721], "Staking: erc721 contract is not whitelisted");
         require(token.balanceOf(msg.sender) >= amount, "Staking: sender balance is too low");
@@ -44,10 +56,12 @@ contract Staking {
 
     function claimReward(address erc721, uint256 tokenID) external {
         require(IERC721(erc721).ownerOf(tokenID) == msg.sender, "Staking: sender is not owner of the token");
-        uint256 reward = calculateRewardFor(erc721,tokenID);
+        uint256 reward = calculateRewardFor(erc721, tokenID);
 
         require(reward > 0, "Staking: zero reward");
+        require(reward > _fuel, "Staking: too low fuel amount");
 
+        delete tokenIdStakeByAsset[erc721][tokenID];
         token.transfer(msg.sender, reward);
     }
 
