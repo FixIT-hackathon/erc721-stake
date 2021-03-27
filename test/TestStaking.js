@@ -10,7 +10,7 @@ contract("staking", function (accounts) {
 
     let amounts = [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000]
     let uris = ["", "", "", "", "", "", "", "", "", ""]
-    let settings = [110, 1, 500, 1000, 365]
+    let settings = [11, 1, 500, 1000, 365]
 
     beforeEach("deploying", async () => {
         token = await Token.new(accounts, amounts)
