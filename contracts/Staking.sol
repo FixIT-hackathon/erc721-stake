@@ -32,7 +32,7 @@ contract Staking is Ownable {
     constructor(address erc20, uint256[] memory settings) {
         require(settings[0] > 0, "Staking: bad apr");
         require(settings[4] > 0, "Staking: bad max stake days");
-        require(settings[1] < settings[2] && settings[2] > settings[3], "Staking: bad maximums");
+        require(settings[1] < settings[2] && settings[2] < settings[3], "Staking: bad maximums");
 
         token = IERC20(erc20);
         _apr = settings[0];
