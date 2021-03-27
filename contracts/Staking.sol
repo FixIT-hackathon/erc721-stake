@@ -42,7 +42,7 @@ contract Staking is Ownable {
         _maxStakeDays = settings[4].mul(1 days);
     }
 
-    function refuel(uint256 amount) onlyOwner {
+    function refuel(uint256 amount) external onlyOwner {
         require(token.balanceOf(msg.sender) >= amount, "Staking: sender balance is too low");
         require(token.allowance(msg.sender, address(this)) >= amount, "Staking: sender allowance is too low");
 
