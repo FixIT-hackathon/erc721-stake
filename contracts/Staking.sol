@@ -13,13 +13,13 @@ contract Staking is Ownable {
     mapping(address => bool) public whitelist;
     mapping(address => mapping(uint256 => Stake[])) tokenIdStakeByAsset;
 
-    uint256 _apr;
-    uint256 _minStake;
-    uint256 _maxStake;
+    uint256 public apr;
+    uint256 public minStake;
+    uint256 public maxStake;
+
+
     uint256 _maxStakeDays;
     uint256 _fuel;
-
-
     uint256 _stakingAmount = 0;
     uint256 _maxStakingAmount;
 
@@ -35,9 +35,9 @@ contract Staking is Ownable {
         require(settings[1] < settings[2] && settings[2] < settings[3], "Staking: bad maximums");
 
         token = IERC20(erc20);
-        _apr = settings[0];
-        _minStake = settings[1];
-        _maxStake = settings[2];
+        apr = settings[0];
+        minStake = settings[1];
+        maxStake = settings[2];
         _maxStakingAmount = settings[3];
         _maxStakeDays = settings[4].mul(1 days);
     }
@@ -52,7 +52,7 @@ contract Staking is Ownable {
 
 
     function stake(uint256 amount, address erc721, uint256 tokenID) external {
-        require(amount >= _minStake, "Staking: amount too small");
+        require(amount >= minStake, "Staking: amount too small");
         require(_stakingAmount.add(amount) > _maxStakingAmount, "Staking: stake pool is full");
         require(erc721 != address(0), "Staking: erc721 contract address is null");
         require(whitelist[erc721], "Staking: erc721 contract is not whitelisted");
@@ -94,7 +94,7 @@ contract Staking is Ownable {
         Stake[] memory stakes = tokenIdStakeByAsset[erc721][tokenID];
         uint256 reward = 0;
         for (uint i = 0; i < stakes.length; i++) {
-            reward.add(calculateReward(stakes[i].amount, block.timestamp.sub(stakes[i].amount)));
+            reward.add(calculateReward(stakes[i].amount, block.timestamp.sub(stakes[i].startAt)));
         }
 
         return reward;
@@ -109,6 +109,6 @@ contract Staking is Ownable {
         uint256 timeDiffDays = timeDiff.div(1 days);
         timeDiffDays = timeDiffDays.sub(timeDiffDays.mod(_maxStakeDays));
 
-        return _apr.div(timeDiffDays).mul(amount).div(1 ether);
+        return apr.div(timeDiffDays).mul(amount).div(1 ether);
     }
 }
